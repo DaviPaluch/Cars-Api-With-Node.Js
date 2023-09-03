@@ -1,4 +1,5 @@
 
+//CarroDB.js
 
 //carrega o módulo mysql
 var mysql = require('mysql')
@@ -18,7 +19,7 @@ class CarroDB {
     })
 
     connection.connect()
-    
+
     return connection
   }
 
@@ -46,13 +47,17 @@ class CarroDB {
     let connection = CarroDB.connect()
 
     //cria a consulta
-    sql = "select * from carro where tipo = '" + tipo + "'"
+    let sql = "select * from carro where tipo = ?"
 
-    let query = connection.query(sql, function(err, results, fields){
+    let query = connection.query(sql, [tipo], function(err, results, fields){
       
       if (err) throw err
 
-      callback(results)})
+
+      callback(results)
+    })
+
+    connection.end()
   }
 
     //Retorna lista de carros por id
@@ -60,7 +65,7 @@ class CarroDB {
 
       let connection = CarroDB.connect()
   
-      sql = "select top 1 * from carro where id = ?"
+      let sql = "select top 1 * from carro where id = ?"
   
       let query = connection.query(sql, function(err, results, fields){
         
@@ -100,7 +105,7 @@ class CarroDB {
       
       let connection = CarroDB.connect()
 
-      sql = "update carro set ? where id = ?"
+      let sql = "update carro set ? where id = ?"
 
       let id = carro.id
 

@@ -28,7 +28,10 @@ app.get('/carros', function (req, res){
 //GET em /carros/tipo
 app.get('/carros/:tipo', function(req,res){
     let tipo = req.params.tipo
-    res.send("Lista de carros: " + tipo)
+    
+    CarroDB.getCarrosByTipo(tipo, function(carros){
+        res.json(carros)
+    })
 })
 
 
@@ -38,3 +41,5 @@ let server = app.listen(3000, function(){
     let port = server.address().port
     console.log("Servidor iniciado em http://%s:%s",host,port)
 })
+
+
