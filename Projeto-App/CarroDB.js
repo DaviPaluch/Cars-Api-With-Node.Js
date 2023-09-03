@@ -4,17 +4,6 @@
 var mysql = require('mysql')
 
 
-
-
-//conecta ao banco de dados
-connection.connect((err) => {
-    if (err) {
-      console.error('Erro ao conectar ao banco de dados:', err);
-      return;
-    }
-    console.log('Conexão com o banco de dados estabelecida com sucesso');
-  });
-
 //Classe CarroDB
 class CarroDB {
 
@@ -27,6 +16,10 @@ class CarroDB {
       password: '',
       database: 'node_essentials'
     })
+
+    connection.connect()
+    
+    return connection
   }
 
   //Retorna Lista de Carros
@@ -102,8 +95,28 @@ class CarroDB {
       })
     }
 
+    //Atualiza um carro no banco de dados
+    static update(carro, callback){
+      
+      let connection = CarroDB.connect()
 
+      sql = "update carro set ? where id = ?"
+
+      let id = carro.id
+
+      let query = connection.query(sql, [carro, id], function(err, results, fields) {
+
+        if(err) throw err
+
+        callback(results.affectedRows)
+
+      })
+      connection.end()
+    }
   }
+
+
+  module.exports = CarroDB
 
 
 
@@ -138,9 +151,6 @@ connection.query(sql, function(error, results, fields) {
 
 
 
-
-
-connection.end()
 
 
 

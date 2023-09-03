@@ -13,14 +13,16 @@ app.use(bodyParser.json())
 
 
 //configura uma rota na raiz
-app.get('/', function(rec,res){
+app.get('/', function(req,res){
     res.send('api dos carros')
 })
 
 
 //GET em carros
-app.get('/carros', function (rec, res){
-    res.send()
+app.get('/carros', function (req, res){
+    CarroDB.getCarros(function(carros){
+        res.json(carros)
+    })
 })
 
 //GET em /carros/tipo
@@ -34,6 +36,5 @@ app.get('/carros/:tipo', function(req,res){
 let server = app.listen(3000, function(){
     let host = server.address().address
     let port = server.address().port
-    
     console.log("Servidor iniciado em http://%s:%s",host,port)
 })
