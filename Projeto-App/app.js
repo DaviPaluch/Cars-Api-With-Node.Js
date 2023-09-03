@@ -1,5 +1,5 @@
 
-
+//app.js
 
 let express = require('express')
 const CarroDB = require('./CarroDB')
@@ -34,6 +34,30 @@ app.get('/carros/:tipo', function(req,res){
     })
 })
 
+//POST para atualizar um carro
+app.post('/carros', function(req,res){
+    //carro enviado no formato JSON
+    let carro = req.body
+
+    CarroDB.save(carro, function(carro){
+        res.json(carro)
+    })
+})
+
+//PUT para atualizar um carro
+app.put('/carros', function(req,res){
+
+    //carro enviado no formato JSON
+    let carro = req.body
+
+    CarroDB.update(carro, function(carros){
+        res.json(carros)
+    })
+})
+
+
+
+
 
 // inicia servidor
 let server = app.listen(3000, function(){
@@ -41,5 +65,9 @@ let server = app.listen(3000, function(){
     let port = server.address().port
     console.log("Servidor iniciado em http://%s:%s",host,port)
 })
+
+
+
+
 
 

@@ -92,10 +92,10 @@ class CarroDB {
       let sql = "insert into carro set ?"
 
       let query = connection.query(sql, carro, function(err, results, fields){
-        if (err) throw err
+        if (err) console.log(err)
 
-        let re = results[0]
-
+        carro.id = results.insertId
+        let re = carro
         callback(re)
       })
     }
@@ -113,13 +113,12 @@ class CarroDB {
 
         if(err) throw err
 
-        callback(results.affectedRows)
+        callback(this.values[0])
 
       })
       connection.end()
     }
   }
-
 
   module.exports = CarroDB
 
