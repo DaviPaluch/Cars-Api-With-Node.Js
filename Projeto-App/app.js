@@ -2,7 +2,6 @@
 //app.js
 
 let express = require('express')
-const CarroDB = require('./CarroDB')
 const bodyParser = require('body-parser')
 
 
@@ -10,52 +9,37 @@ let app = express()
 app.use(bodyParser.urlencoded({extended: false}))
 app.use(bodyParser.json())
 
+//Rotas
+app.use('/api', require('./routes/carros'))
 
 
-//configura uma rota na raiz
-app.get('/', function(req,res){
-    res.send('api dos carros')
+//Teste de Erro
+app.get('/teste_erro', function(req, res){
+    throw Error('Erro ninja')
+})
+
+//Rota não encontrada 404
+app.use(function(req,res,next){
+
+    //criamos um objeto 'Error' e passamos para a função 'next()'
+    //que delegará o trabalho para o próximo middleware, que neste caso
+    //será o middleware de erro
+    let err = new Error('Não encontrado')
+    err.status = 404
+    next(err)
 })
 
 
-//GET em carros
-app.get('/carros', function (req, res){
-    CarroDB.getCarros(function(carros){
-        res.json(carros)
-    })
+
+//Para mostrar erros amigáveis vamos adicionar essa função de tratamento de erros genérica
+//obs:  é obrigatório que um middleware de tratamento de erros possua 4 argumentos
+//      se você não precisar usar o objeto next, deverá especificá-lo para manter a assinatura      
+app.use(function(err,req,res,next){
+
+    console.log(err.stack)
+    res.status(500)
+    res.json({erro: "Ocorreu um erro: " + err.message})
 })
-
-//GET em /carros/tipo
-app.get('/carros/:tipo', function(req,res){
-    let tipo = req.params.tipo
-    
-    CarroDB.getCarrosByTipo(tipo, function(carros){
-        res.json(carros)
-    })
-})
-
-//POST para atualizar um carro
-app.post('/carros', function(req,res){
-    //carro enviado no formato JSON
-    let carro = req.body
-
-    CarroDB.save(carro, function(carro){
-        res.json(carro)
-    })
-})
-
-//PUT para atualizar um carro
-app.put('/carros', function(req,res){
-
-    //carro enviado no formato JSON
-    let carro = req.body
-
-    CarroDB.update(carro, function(carros){
-        res.json(carros)
-    })
-})
-
-
 
 
 

@@ -65,9 +65,9 @@ class CarroDB {
 
       let connection = CarroDB.connect()
   
-      let sql = "select top 1 * from carro where id = ?"
+      let sql = "select * from carro where id = ?"
   
-      let query = connection.query(sql, function(err, results, fields){
+      let query = connection.query(sql, [id], function(err, results, fields){
         
         if (err) throw err
         if (results.length == 0) {
@@ -78,10 +78,11 @@ class CarroDB {
         //Encontrou carro
         let carro = results[0]
 
-        callback(carro)}
-      )
+        callback(carro)
+      })
 
       connection.end()
+
     }
 
 
@@ -118,6 +119,41 @@ class CarroDB {
       })
       connection.end()
     }
+
+    //Deleta um carro do banco de dados
+    static delete(carro, callback){
+      let connection = CarroDB.connect()
+
+      let sql = "delete from carro where id = ?"
+
+      let id = carro.id
+
+      let query = connection.query(sql, [id], function(err, results, fields) {
+
+        if(err) throw err
+
+        callback(results.affectedRows)
+
+      })
+      connection.end()
+    }
+
+    //Deleta um carro pelo id
+    static deleteCarroById(id, callback){
+      let connection = CarroDB.connect()
+
+      let sql = "delete from carro where id = ?"
+
+      let query = connection.query(sql, id, function(err, results, fields) {
+
+        if(err) throw err
+
+        callback(results.affectedRows)
+
+      })
+      connection.end()
+    }
+
   }
 
   module.exports = CarroDB
