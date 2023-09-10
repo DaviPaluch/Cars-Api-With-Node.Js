@@ -2,7 +2,9 @@
 //CarroDB.js
 
 //carrega o módulo mysql
+const { rejects } = require('assert')
 var mysql = require('mysql')
+const { resolve } = require('path')
 
 
 //Classe CarroDB
@@ -24,50 +26,58 @@ class CarroDB {
   }
 
   //Retorna Lista de Carros
-  static getCarros(callback){
+  static getCarros(){
     
-    let connection = CarroDB.connect()
+    return new Promise(function(resolve,reject){
 
-    //cria a consulta
-    let sql = "select * from carro"
+      let connection = CarroDB.connect()
 
-    let query = connection.query(sql, function(err, results, fields) {
-      connection.end()
+      //cria a consulta
+      let sql = "select * from carro"
 
-      if(err) {
-        //geralmente funções de callback retornam erros como parâmetros
-        callback(err,null)
-        return next(err)
-      }
+      let query = connection.query(sql, function(err, results, fields) {
+        connection.end()
 
-      callback(null,results)
+        if(err) {
+          reject(err)
+        } else {
+          resolve(results)
+        }
+
+      })
     })
   
   }
 
   //Retorna lista de carros por tipo
-  static getCarrosByTipo(tipo, callback,next){
+  static getCarrosByTipo(tipo){
 
-    let connection = CarroDB.connect()
+    return new Promise(function(resolve,reject){
 
-    //cria a consulta
-    let sql = "select * from carro where tipo = ?"
+      let connection = CarroDB.connect()
+  
+      //cria a consulta
+      let sql = "select * from carro where tipo = ?"
+  
+      let query = connection.query(sql, [tipo], function(err, results, fields){
+        connection.end()
+        
+        if (err) {
+          reject(err)
+        } else {
+          resolve(results)
+        }
 
-    let query = connection.query(sql, [tipo], function(err, results, fields){
-      connection.end()
-      
-      if (err) {
-        callback(err,null)
-        return next(err)
-      }
-
-      callback(null,results)
+      })
     })
+
 
   }
 
-    //Retorna lista de carros por id
-    static getCarrosById(id, callback,next){
+  //Retorna lista de carros por id
+  static getCarrosById(id){
+
+    return new Promise(function(resolve,reject){
 
       let connection = CarroDB.connect()
   
@@ -77,78 +87,96 @@ class CarroDB {
         connection.end()
         
         if (err) {
-          callback(err,null)
+          reject(err)
+        } else if (results.length == 0) {
+          reject(Error("Nenhum carro encontrado."))
           return
+        } else {
+          //Encontrou carro
+          let carro = results[0]
+          resolve(carro)
         }
-        if (results.length == 0) {
-          console.log("Nenhum carro encontrado.")
-          return
+      })
+    })
+  }
+
+
+  //Salva um carro
+  static save(carro){
+
+    return new Promise(function(resolve,reject){
+
+      let connection = CarroDB.connect()
+  
+      let sql = "insert into carro set ?"
+  
+      let query = connection.query(sql, carro, function(err, results, fields){
+        connection.end()
+
+        if (err) {
+          reject(err)
+        } else {
+          carro.id = results.insertId
+          let re = carro
+          resolve(carro)
         }
   
-        //Encontrou carro
-        let carro = results[0]
-        callback(null,carro)
       })
+    })
+  }
 
-    }
+  //Atualiza um carro no banco de dados
+  static update(carro){
+      
+    return new Promise(function(resolve,reject){
 
-
-    //Salva um carro
-    static save(carro, callback){
       let connection = CarroDB.connect()
-
-      let sql = "insert into carro set ?"
-
-      let query = connection.query(sql, carro, function(err, results, fields){
-        if (err) {
-          console.log(err)
-          callback(err,null)
-          return
-        }
-
-        carro.id = results.insertId
-        let re = carro
-        callback(null,re)
-      })
-    }
-
-    //Atualiza um carro no banco de dados
-    static update(carro, callback){
-       
-      let connection = CarroDB.connect()
-
+  
       let sql = "update carro set ? where id = ?"
-
+  
       let id = carro.id
-
+      
       let query = connection.query(sql, [carro, id], function(err, results, fields) {
-
-        if(err) throw err
-        callback(this.values[0])
+        connection.end()
+  
+        if(err) {
+          reject(err)
+        } else {
+          resolve(carro)
+        }
+  
       })
-      connection.end()
-    }
+    })
+  }
 
-    //Deleta um carro do banco de dados
-    static delete(carro, callback){
+  //Deleta um carro do banco de dados
+  static delete(carro){
+
+    return new Promise(function(reject,resolve){
+
       let connection = CarroDB.connect()
-
+  
       let sql = "delete from carro where id = ?"
-
+  
       let id = carro.id
-
+  
       let query = connection.query(sql, [id], function(err, results, fields) {
+        connection.end()
 
-        if(err) throw err
-
-        callback(results.affectedRows)
-
+        if(err) {
+          reject(err)
+        } else {
+          resolve(results.affectedRows)
+        }  
       })
-      connection.end()
-    }
+    })
+  }
 
-    //Deleta um carro pelo id
-    static deleteCarroById(id, callback){
+  //Deleta um carro pelo id
+  static deleteCarroById(id, callback){
+
+    return new Promise(function(reject,resolve){
+
       let connection = CarroDB.connect()
 
       let sql = "delete from carro where id = ?"
@@ -157,18 +185,18 @@ class CarroDB {
         connection.end()
 
         if(err) {
-          callback(err,null)
-          return
+          reject(err)
+        } else {
+          resolve(results.affectedRows)
         }
-
-        callback(null,results.affectedRows)
-
       })
-    }
-
+    })
+    
   }
 
-  module.exports = CarroDB
+}
+
+module.exports = CarroDB
 
 
 
