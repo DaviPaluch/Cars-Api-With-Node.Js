@@ -173,9 +173,9 @@ class CarroDB {
   }
 
   //Deleta um carro pelo id
-  static deleteCarroById(id, callback){
+  static deleteCarroById(id){
 
-    return new Promise(function(reject,resolve){
+    return new Promise(function(resolve,reject){
 
       let connection = CarroDB.connect()
 

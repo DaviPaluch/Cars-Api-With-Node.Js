@@ -32,7 +32,7 @@ router.get('/:id(\\d+)', exec(async(req,res,next) => {
 //DELETE em /id
 router.delete('/:id(\\d+)', exec(async(req,res,next) => {
 
-    let = await CarroDB.deleteCarroById(req.params.id)
+    let affectedRows = await CarroDB.deleteCarroById(req.params.id)
     res.json({msg: 'Linhas afetadas: ' + affectedRows})
 }))
 
